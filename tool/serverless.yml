@@ -1,0 +1,296 @@
+service: DocumentationTool
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: python3.8
+  region: us-east-1
+  timeout: 20 #Configure if you want to
+  memorySize: 128
+  environment:
+    SUMMARY_BUCKET: runtime-summaries-new #You can configure the bucket name you want here.
+    CLOUDTRAIL_BUCKET: TODO #Insert name of the created CloudTrail Bucket here! Without "", like above.
+    LOGWORKER_ARN: TODO #Insert LogWorker ARN
+    VERSIONWORKER_ARN: TODO #Insert VersionWorker ARN
+    FETCHER_ARN: TODO #Insert Fetcher ARN
+
+custom:
+  LOG_GROUPS_VERSIONWORKER: '[
+    "/aws/lambda/AnotherOne",
+    "/aws/lambda/aws-serverless-shopping-car-DeleteFromCartFunction-pEzmoxYfN1Rb",
+    "/aws/lambda/aws-serverless-shopping-cart--CheckoutCartFunction-xGj2nG9uZGcK",
+    "/aws/lambda/aws-serverless-shopping-cart-s-CartDBStreamHandler-gOcpra7GDjDD",
+    "/aws/lambda/aws-serverless-shopping-cart-s-MigrateCartFunction-XtSgwtCiMZ3b",
+    "/aws/lambda/aws-serverless-shopping-cart-sho-AddToCartFunction-yIIZleGH6xKy",
+    "/aws/lambda/aws-serverless-shopping-cart-shop-ListCartFunction-RlG8IEszAU7l",
+    "/aws/lambda/CheckUserInfo",
+    "/aws/lambda/DBCousin",
+    "/aws/lambda/DeletingObjects",
+    "/aws/lambda/invokedByAnotherOne",
+    "/aws/lambda/isPi",
+    "/aws/lambda/shopping_cart_MigrationDetected",
+    "/aws/lambda/shopping_cart_priceConverter",
+    "/aws/lambda/shoppingCart_CoinFlip",
+    "/aws/lambda/Test4",
+    "/aws/lambda/Test5",
+    "/aws/lambda/TriggeredByDynamo"
+    ]'
+
+  LOG_GROUPS_LOGWORKER: '[
+    "/aws/lambda/AnotherOne",
+    "/aws/lambda/aws-serverless-shopping-car-DeleteFromCartFunction-pEzmoxYfN1Rb",
+    "/aws/lambda/aws-serverless-shopping-cart--CheckoutCartFunction-xGj2nG9uZGcK",
+    "/aws/lambda/aws-serverless-shopping-cart-s-CartDBStreamHandler-gOcpra7GDjDD",
+    "/aws/lambda/aws-serverless-shopping-cart-s-MigrateCartFunction-XtSgwtCiMZ3b",
+    "/aws/lambda/aws-serverless-shopping-cart-sho-AddToCartFunction-yIIZleGH6xKy",
+    "/aws/lambda/aws-serverless-shopping-cart-shop-ListCartFunction-RlG8IEszAU7l",
+    "/aws/lambda/CheckUserInfo",
+    "/aws/lambda/DBCousin",
+    "/aws/lambda/DeletingObjects",
+    "/aws/lambda/invokedByAnotherOne",
+    "/aws/lambda/isPi",
+    "/aws/lambda/shopping_cart_MigrationDetected",
+    "/aws/lambda/shopping_cart_priceConverter",
+    "/aws/lambda/shoppingCart_CoinFlip",
+    "/aws/lambda/Test4",
+    "/aws/lambda/Test5",
+    "/aws/lambda/TriggeredByDynamo",
+    "API-Gateway-Execution-Logs_xnvnidaq5a/Prod"
+  ]'
+
+
+functions:
+
+  fetcher_handler:
+    handler: Fetcher.fetcher_handler
+    role: FetcherRole
+  
+  versionWorker_handler:
+    handler: versionWorker.versionWorker_handler
+    role: VersionWorkerRole
+    environment:
+      LOG_GROUPS: ${self:custom.LOG_GROUPS_VERSIONWORKER}
+
+  logWorker_handler:
+    handler: logWorker.logWorker_handler
+    role: LogWorkerRole
+    environment:
+      LOG_GROUPS: ${self:custom.LOG_GROUPS_LOGWORKER}
+
+  checkForDeployment_handler:
+    handler: checkForDeployment.lambda_handler
+    role: CheckForDeploymentRole
+
+  deploymentFetcher_handler:
+    handler: DeploymentFetcher.lambda_handler
+    role: DeploymentFetcherRole
+
+resources:
+  Resources:
+
+    SummaryS3Bucket:
+      Type: 'AWS::S3::Bucket'
+      DeletionPolicy: Retain
+      Properties:
+        BucketName: ${self:provider.environment.SUMMARY_BUCKET}
+
+    VersionWorkerRole:
+      Type: AWS::IAM::Role
+      Properties:
+        AssumeRolePolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Action:
+              - "sts:AssumeRole"
+              Effect: "Allow"
+              Principal:
+                Service:
+                  - "lambda.amazonaws.com"
+
+    LogWorkerRole:
+      Type: AWS::IAM::Role
+      Properties:
+        AssumeRolePolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Action:
+              - "sts:AssumeRole"
+              Effect: "Allow"
+              Principal:
+                Service:
+                  - "lambda.amazonaws.com"
+
+    FetcherRole:
+      Type: AWS::IAM::Role
+      Properties:
+        AssumeRolePolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Action:
+              - "sts:AssumeRole"
+              Effect: "Allow"
+              Principal:
+                Service:
+                  - "lambda.amazonaws.com"
+
+    CheckForDeploymentRole:
+      Type: AWS::IAM::Role
+      Properties:
+        AssumeRolePolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Action:
+              - "sts:AssumeRole"
+              Effect: "Allow"
+              Principal:
+                Service:
+                  - "lambda.amazonaws.com"
+
+    DeploymentFetcherRole:
+      Type: AWS::IAM::Role
+      Properties:
+        AssumeRolePolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Action:
+              - "sts:AssumeRole"
+              Effect: "Allow"
+              Principal:
+                Service:
+                  - "lambda.amazonaws.com"
+
+    GetFunctionVersionPolicy:
+      Type: "AWS::IAM::Policy"
+      Properties:
+        PolicyName: GetFunctionVersionPolicy
+        PolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            -
+              Effect: "Allow"
+              Action: [
+                "lambda:ListVersionsByFunction"
+                ]
+              Resource: "*"
+        Roles:
+          - !Ref VersionWorkerRole
+
+    CloudWatchReadOnlyPolicy:
+      Type: "AWS::IAM::Policy"
+      Properties:
+        PolicyName: CloudWatchReadOnlyPolicy
+        PolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            -
+              Effect: "Allow"
+              Action: [
+                "logs:Describe*",
+                "logs:Get*",
+                "logs:List*",
+                "logs:StartQuery",
+                "logs:StopQuery",
+                "logs:TestMetricFilter",
+                "logs:FilterLogEvents"
+              ]
+              Resource: "*"
+        Roles:
+          - !Ref VersionWorkerRole
+          - !Ref LogWorkerRole
+
+    BasicLoggingPolicy:
+      Type: "AWS::IAM::Policy"
+      Properties:
+        PolicyName: BasicLoggingPolicy
+        PolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            -
+              Effect: "Allow"
+              Action: [
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:PutLogEvents"
+              ]
+              Resource: "*"
+        Roles:
+          - !Ref VersionWorkerRole
+          - !Ref LogWorkerRole
+          - !Ref FetcherRole
+          - !Ref CheckForDeploymentRole
+          - !Ref DeploymentFetcherRole
+
+    S3PutObjectPolicy:
+      Type: "AWS::IAM::Policy"
+      Properties:
+        PolicyName: S3PutObjectPolicy
+        PolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            -
+              Effect: "Allow"
+              Action: [
+                "s3:PutObject"
+                ]
+              Resource: "*"
+        Roles:
+          - !Ref VersionWorkerRole
+          - !Ref FetcherRole
+          - !Ref LogWorkerRole
+
+    S3ReadOnlyPolicy:
+      Type: "AWS::IAM::Policy"
+      Properties:
+        PolicyName: S3ReadOnlyPolicy
+        PolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            -
+              Effect: "Allow"
+              Action: [
+                "s3:Get*",
+                "s3:List*",
+                "s3-object-lambda:Get*",
+                "s3-object-lambda:List*"
+              ]
+              Resource: "*"
+        Roles:
+          - !Ref FetcherRole
+          - !Ref CheckForDeploymentRole
+          - !Ref DeploymentFetcherRole
+
+    InvokeLambdaPolicy:
+      Type: "AWS::IAM::Policy"
+      Properties:
+        PolicyName: InvokeLambdaPolicy
+        PolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            -
+              Effect: "Allow"
+              Action: [
+                "lambda:InvokeFunction",
+                "lambda:InvokeAsync"
+                ]
+              Resource: "*"
+        Roles:
+          - !Ref LogWorkerRole
+          - !Ref FetcherRole
+          - !Ref CheckForDeploymentRole
+
+    CloudWatchGetMetricsPolicy:
+      Type: "AWS::IAM::Policy"
+      Properties:
+        PolicyName: CloudWatchGetMetricsPolicy
+        PolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            -
+              Effect: "Allow"
+              Action: [
+                "cloudwatch:GetMetricStatistics"
+                ]
+              Resource: "*"
+        Roles:
+          - !Ref LogWorkerRole
