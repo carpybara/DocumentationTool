@@ -1,0 +1,154 @@
+@import '~antd/dist/antd.css';
+
+.App {
+  text-align: center;
+  background-color: rgb(255, 255, 255)
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
+
+/* colors */
+.superawesome { background: #52c41a; }
+.awesome { background: #a0d911; }
+.kindaawesome { background: #fadb14; }
+.almostnotawesome {background: #faad14;}
+.notawesome { background: #fa8c16; }
+.invalid { background: rgba(255, 255, 255,1); }
+.my-legend {
+  border: 1px solid lightgray;
+  border-top: none;
+}
+.my-legend .legend-title {
+  text-align: left;
+  margin-bottom: 8px;
+  font-weight: bold;
+  font-size: 90%;
+  }
+.my-legend .legend-scale ul {
+  margin: 0;
+  padding: 0;
+  float: left;
+  list-style: none;
+  }
+.my-legend .legend-scale ul li {
+  display: block;
+  float: left;
+  width: 50px;
+  margin-bottom: 6px;
+  text-align: center;
+  font-size: 80%;
+  list-style: none;
+  }
+.my-legend ul.legend-labels li span {
+  display: block;
+  float: left;
+  height: 20px;
+  width: 50px;
+  }
+
+
+.configuration {
+  margin-left: 3%;
+}
+
+
+
+#pieView {
+  width: 900px;
+  height: 700px;
+  float: left;
+  padding-right: 5%;
+}
+
+#ComputeGraphTree {
+  border: 1px solid lightgray;
+}
+
+.GraphBorder {
+  border: 1px solid lightgray;
+}
+
+#startupGraphElement {
+  float: left;
+}
+
+#initGraphElement {
+  overflow: hidden;
+}
+
+#startupWrapper {
+  overflow: hidden;
+  margin-top: 1%;
+}
+
+#ComputeGraphElement {
+  float: left;
+}
+
+#ComputeWrapper {
+  overflow: hidden;
+  margin-top: 4%;
+}
+
+.centered {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+    margin: 0;
+  position: absolute;
+  top: 50%;
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
+}
+
+.rowParent{
+  padding: 10% 0;
+}
+.row{
+  padding: 5% 0;
+}
+
+.bottomRow{
+  bottom: 10%;
+}
+
+body {
+  margin: 0; padding: 0; height: 100%; width: 100%; background: rgba(128, 128, 128, 0.08);
+}
