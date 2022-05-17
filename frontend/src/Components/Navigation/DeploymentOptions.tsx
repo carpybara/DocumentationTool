@@ -9,8 +9,17 @@ function formatDeploymentName(fileName:string) :string{
   }
   const shortened:string = fileName.split('/')[1].split('.')[0];
   const date:string = shortened.split('_')[2];
-  const finalString = "Application State until " + date.substring(6, 8)+"-"+date.substring(4, 6)+"-"+date.substring(0,4)+" "+date.substring(9,11)+":"+date.substring(11,13)+":"+date.substring(13,15);
+  const dateString = date.substring(0, 4) + '-' + date.substring(4,6) +'-'+ date.substring(6,11) +':'+ date.substring(11,13) +':'+ date.substring(13,15) + 'Z';
+  const date_date = new Date(dateString)
+  const finalString = "Application State until " + checkDoubleDigit(String(date_date.getDate()))+"-"+checkDoubleDigit(String(date_date.getMonth()+1))+"-"+String(date_date.getFullYear())+" "+checkDoubleDigit(String(date_date.getHours()))+":"+checkDoubleDigit(String(date_date.getMinutes()))+":"+checkDoubleDigit(String(date_date.getSeconds()));
   return finalString;
+}
+
+function checkDoubleDigit(input:string):string {
+  if (input.length===1){
+    return '0'+input;
+  }
+  return input
 }
 
 
