@@ -1,9 +1,9 @@
 import json
-import boto3
+import boto3 #remove for testing
 import os
 
-s3_client = boto3.client("s3")
-S3_BUCKET = os.environ["SUMMARY_BUCKET"]
+s3_client = boto3.client("s3") #replace with '' for testing
+S3_BUCKET = os.environ["SUMMARY_BUCKET"] #ditto
 
 def lambda_handler(event, context):
     '''
@@ -18,11 +18,10 @@ def lambda_handler(event, context):
     
     if operation_flag == "fetch":
         S3_prefix = config.get("key")
-        fetched_file = json.loads(s3_client.get_object(Bucket=S3_BUCKET, Key=S3_prefix)["Body"].read().decode("utf-8"))
+        fetched_file = getRequestedFile(S3_prefix)
         return makeReturn(200, json.dumps(fetched_file))
     
-        
-    response = s3_client.list_objects_v2(Bucket=S3_BUCKET, Prefix=S3_prefix, StartAfter=S3_prefix)
+    response = getDeploymentDocList(S3_prefix)
     
     if "Contents" in response:
         s3_files = response["Contents"]
@@ -50,3 +49,11 @@ def makeReturn(statusCode, body):
                 },
                 "body": json.dumps(body)
     }
+
+
+def getRequestedFile(file_name):
+    return json.loads(s3_client.get_object(Bucket=S3_BUCKET, Key=file_name)["Body"].read().decode("utf-8"))
+
+
+def getDeploymentDocList(S3_prefix):
+    return s3_client.list_objects_v2(Bucket=S3_BUCKET, Prefix=S3_prefix, StartAfter=S3_prefix)
