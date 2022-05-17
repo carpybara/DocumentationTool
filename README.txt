@@ -7,20 +7,37 @@ Requirements:
 - npm
 - For sample app: https://github.com/aws-samples/aws-serverless-shopping-cart#requirements
 
-1. Navigate to the sample app and deploy it to your AWS account according to these instructions: https://github.com/aws-samples/aws-serverless-shopping-cart#option-1---deploy-backend-and-run-frontend-locally
+1. Deploy the sample app to your AWS account according to their instructions: https://github.com/aws-samples/aws-serverless-shopping-cart#option-1---deploy-backend-and-run-frontend-locally
 
-2. Open a terminal inside the directory. Next, you must configure your AWS user. You can then deploy the project to the AWS account with 'serverless deploy' from inside the project directory.
+2. Inject the logging statements and make a small change in the sample app, so you don't have to submit a real credit card number.
+- Go to backend/shopping-cart-service
+- Add this line to each Lambda function after the boto3 import: boto3.set_stream_logger(name='botocore', level='DEBUG')
+-- (That should be 8 Lambda functions in total.)
+- Go to frontend/src/views/Payment.vue and comment out lines 81, 82, 85, 88, 91 ("required" and "ccvalidate: ccvalidate")
+-Save all changes and redeploy.
+
+2. Open a terminal inside the tool directory. Next, you must configure your AWS user. You can then deploy the project to the AWS account with 'serverless deploy' from inside the project directory.
 - https://docs.aws.amazon.com/IAM/latest/UserGuide/id_users_create.html (If you want to make a new user)
 - https://www.serverless.com/framework/docs/providers/aws/cli-reference/config-credentials (If you have existing user credentials to use)
 
-(2.5. Configure botocore & powertool logging, ...)
-(- This will be setup in the sample application.)
-
 3. Create a API-Gateway for Fetcher.
 - https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-create-api-as-simple-proxy-for-lambda.html
-- https://codeburst.io/react-js-api-calls-to-aws-lambda-api-gateway-and-dealing-with-cors-89fb897eb04d
+- - API-Gateway -> Create Api -> REST API -> Build
+- - Enter a name and choose "Create Api"
+- - Resources -> root (/) -> Actions (dropdown menu) -> Create Resource -> Enter name and a resource path -> Create Resource
+- - Choose the newly created resource -> in Actions, choose Create method -> Choose 'ANY' -> Choose 'Use Lambda Proxy Integration' -> Choose the Lambda region of the tool -> For Lambda Function select the Fetcher function. Save & OK.
+- - Actions -> Deploy -> Enter a stage name -> Deploy -> Take a note of the Invoke URL or come back to this page later
 
-4. Repeat step 3 for a new API-Gateway that connects to the DeploymentFetcher.
+- https://codeburst.io/react-js-api-calls-to-aws-lambda-api-gateway-and-dealing-with-cors-89fb897eb04d
+- - Resources -> ANY -> Method Response
+- - Add HTTP status 200 and 404. Also do this for Resources -> OPTIONS -> Method Response
+- - Actions -> Enable CORS -> Click "Enable CORS and replace existing CORS headers"
+- - For ANY and OPTIONS go to Method Response and add the following to the Response Headers and Response Body for both HTTP statuses.
+- - - Response Headers: Access-Control-Allow-Headers, Access-Control-Allow-Origin, Access-Control-Allow-Methods
+- - - Response Body: application/json, Empty
+- - Actions -> Deploy API -> Save changes.
+
+4. Repeat step 3 for a new API-Gateway that connects to the DeploymentFetcher instead of Fetcher.
 
 5. Create CloudTrail trail that pushes to a S3 Bucket.
 - Create trail with a name that we will use later on.
