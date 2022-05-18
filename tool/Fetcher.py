@@ -333,6 +333,7 @@ def mergeVersions(inventory_file, merger_object):
                     new_memorySize = versions['stats']['memorySize']
                     new_current_avg_initDuration = weightedAverage(versions['stats']['current_avg_initDuration'], versions[highestVersion_VersionFile][-1]['version_sampled'], merged_version_info['stats']['current_avg_initDuration'], merged_version_info[highestVersion_Merger][-1]['version_sampled'])
 
+
                 merged_version_info['stats'] = {
                     "func_avg_billedDuration": new_func_duration,
             		"func_total_computation": new_func_computation,
@@ -360,9 +361,12 @@ def mergeVersions(inventory_file, merger_object):
                                     
                         #Merge version stats
                         new_sampled = version_stats_temp2['version_sampled'] + version_stats_temp1['version_sampled']
+                        new_maxMemory = ((version_stats_temp2['version_avg_maxMemoryUsed'] * version_stats_temp2['version_sampled']) + (version_stats_temp1['version_avg_maxMemoryUsed'] * version_stats_temp1['version_sampled'])) / new_sampled
+
                                     
                         #Put back at end of the list
                         merged_version_info[version_nr].append({
+                            "version_avg_maxMemoryUsed": new_maxMemory,
             				"version_sampled": new_sampled
                         })
                                 
