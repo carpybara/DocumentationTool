@@ -60,8 +60,7 @@ def versionWorker_handler(event, context):
             
             if message_type == "START":
                 START_msgs.append(response['results'][log_entry])
-                if "df9efe5d-e4d5-440a-960c-fe91c0a6beb2" in response['results'][log_entry][4].get('value'):
-                    return response['results'][log_entry], "start"
+
             if message_type == "REPORT":
                 REPORT_msgs.append(response['results'][log_entry])
 
