@@ -29,7 +29,7 @@ Requirements:
 - - Actions -> Deploy -> Enter a stage name -> Deploy -> Take a note of the Invoke URL or come back to this page later
 
 - https://codeburst.io/react-js-api-calls-to-aws-lambda-api-gateway-and-dealing-with-cors-89fb897eb04d
-- - Actions -> Enable CORS -> Click "Enable CORS and replace existing CORS headers"
+- - Choose the created resource -> Actions -> Enable CORS -> Click "Enable CORS and replace existing CORS headers"
 - - Resources -> ANY -> Method Response
 - - Add HTTP status 200 and 404. Also do this for Resources -> OPTIONS -> Method Response
 - - For ANY and OPTIONS go to Method Response and add the following to the Response Headers and Response Body for both HTTP statuses.
